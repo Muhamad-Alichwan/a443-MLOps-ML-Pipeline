@@ -8,15 +8,17 @@ from tfx.components.trainer.fn_args_utils import FnArgs
 LABEL_KEY = "is_sarcastic"
 FEATURE_KEY = "headline"
 
+# "Fungsi ini digunakan untuk mengubah nama fitur yang telah melalui proses transform."
 def transformed_name(key):
     """Renaming transformed features"""
     return key + "_xf"
 
+# "Ia merupakan fungsi yang digunakan untuk memuat data dalam format TFRecord."
 def gzip_reader_fn(filenames):
     """Loads compressed data"""
     return tf.data.TFRecordDataset(filenames, compression_type='GZIP')
 
-
+# "Ia digunakan untuk memuat transformed_feature yang dihasilkan oleh komponen Transform dan membaginya ke dalam beberapa batch."
 def input_fn(file_pattern, tf_transform_output, num_epochs, batch_size=64)->tf.data.Dataset:
     """Get post_tranform feature & create batches of data"""
 
@@ -49,6 +51,7 @@ vectorize_layer = layers.TextVectorization(
 
 embedding_dim=16
 
+# "Fungsi inilah yang bertanggung jawab dalam membuat arsitektur model. Pada latihan ini, kita menggunakan salah satu embedding layer yang tersedia dan dapat diunduh melalui TensorFlow Hub."
 def model_builder():
     """Build machine learning model"""
     inputs = tf.keras.Input(shape=(1,), name=transformed_name(FEATURE_KEY), dtype=tf.string)
@@ -73,7 +76,7 @@ def model_builder():
     model.summary()
     return model
 
-
+# "Fungsi ini digunakan untuk menjalankan tahapan preprocessing data pada raw request data."
 def _get_serve_tf_examples_fn(model, tf_transform_output):
 
     model.tft_layer = tf_transform_output.transform_features_layer()
@@ -94,7 +97,7 @@ def _get_serve_tf_examples_fn(model, tf_transform_output):
 
     return serve_tf_examples_fn
 
-
+# "Ia merupakan fungsi yang bertanggung jawab untuk menjalankan proses training model sesuai dengan parameter training yang diberikan."
 def run_fn(fn_args: FnArgs) -> None:
 
     log_dir = os.path.join(os.path.dirname(fn_args.serving_model_dir), 'logs')
